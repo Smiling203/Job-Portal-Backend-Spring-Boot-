@@ -1,14 +1,9 @@
 package com.pallavi.jobportal.exception;
 
-public class ResourceNotFoundException extends RuntimeException{ 
-	
-	public ResourceNotFoundException(String message) {
-		super(message);
-	}
+public class ResourceNotFoundException extends RuntimeException {
 
-	public String getMessage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
 }
+

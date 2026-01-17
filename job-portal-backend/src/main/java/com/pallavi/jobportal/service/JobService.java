@@ -12,7 +12,6 @@ public interface JobService {
 	
 	Job getJobById(Long id);
 	
-	
 	void deleteJob(Long id); //remove job by id
 
 	Job updateJob(Long id, Job job);
