@@ -14,44 +14,56 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-
 @Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter{
-      
-	@Override
-	protected void doFilterInternal(
-			HttpServletRequest request,
-			HttpServletResponse response,
-			FilterChain filterChain) 
-	throws ServletException, IOException {
-		
-		//Get Authorization header
-		String authHeader = request.getHeader("Authorization");
-		
-		//Check header format
-		if(authHeader != null && authHeader.startsWith("Bearer ")) {
-			String Token = authHeader.substring(7);
-			
-			try {
-				
-				//Validate Token
-				Claims claims = JwtUtil.validateToken(Token);
-				
-				String email = claims.getSubject();
-				String role = claims.get("role", String.class);
-				
-				//Create authentication object
-				UsernamePasswordAuthenticationToken authentication =
-						new UsernamePasswordAuthenticationToken(email, null, null); 
-				
-				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				
-						
-			} catch (Exception e) {
-				SecurityContextHolder.clearContext();
-			}
-		}
-		
-		filterChain.doFilter(request, response);
-	}
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String path = request.getServletPath();
+
+        if (path.startsWith("/v3/api-docs")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/swagger-ui.html")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String authHeader = request.getHeader("Authorization");
+        
+
+       if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+          filterChain.doFilter(request, response);
+         return;
+         }
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+
+            try {
+                Claims claims = JwtUtil.validateToken(token);
+
+                String email = claims.getSubject();
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(email, null, null);
+
+                authentication.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
+
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
+            }
+        }
+
+        filterChain.doFilter(request, response);
+    }
 }

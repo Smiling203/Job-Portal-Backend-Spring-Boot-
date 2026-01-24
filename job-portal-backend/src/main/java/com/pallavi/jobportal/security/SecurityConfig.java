@@ -12,47 +12,52 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
-	private final JwtAuthenticationEntryPoint authenticationEntryPoint;
-	private final JwtAccessDeniedHandler accessDeniedHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final JwtAccessDeniedHandler accessDeniedHandler;
 
-	
-	public SecurityConfig(
-	        JwtAuthenticationFilter jwtAuthenticationFilter,
-	        JwtAuthenticationEntryPoint authenticationEntryPoint,
-	        JwtAccessDeniedHandler accessDeniedHandler) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            JwtAuthenticationEntryPoint authenticationEntryPoint,
+            JwtAccessDeniedHandler accessDeniedHandler) {
 
-	    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-	    this.authenticationEntryPoint = authenticationEntryPoint;
-	    this.accessDeniedHandler = accessDeniedHandler;
-	}
-	
-	
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
+    }
 
-	    http
-	        .csrf(csrf -> csrf.disable())
-	        .sessionManagement(session ->
-	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-	        )
-	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**")
-	            .permitAll()
-	            .anyRequest().authenticated()
-	        )
-	        .exceptionHandling(ex -> ex
-	            .authenticationEntryPoint(authenticationEntryPoint)
-	            .accessDeniedHandler(accessDeniedHandler)
-	        )
-	        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-	    return http.build();
-	}
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/api/auth/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**"
+                ).permitAll()
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
+            )
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            );
 
-	
-	public AuthenticationManager authenticationManager(
-			AuthenticationConfiguration configuration) throws Exception {
-		return configuration.getAuthenticationManager();
-	}
+        return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
 }
