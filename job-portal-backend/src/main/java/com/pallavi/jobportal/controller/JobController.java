@@ -14,49 +14,74 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pallavi.jobportal.dto.JobRequest;
+import com.pallavi.jobportal.dto.JobResponse;
 import com.pallavi.jobportal.entity.Job;
 import com.pallavi.jobportal.service.JobService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/jobs")
+@Tag(name = "Job APIs", description = "Create, Read, Update & Delete Jobs")
 public class JobController {
 
-	private final JobService jobService;
+    private final JobService jobService;
 
-	public JobController(JobService jobService) {
-		this.jobService = jobService;
-	}
+    public JobController(JobService jobService) {
+        this.jobService = jobService;
+    }
 
-	// CREATE JOB
-	@PostMapping
-	public ResponseEntity<Job> createJob(@RequestBody Job job) {
-		return new ResponseEntity<>(jobService.createJob(job), HttpStatus.CREATED);
-	}
+    // ✅ CREATE JOB (DTO based)
+    @PostMapping
+    public ResponseEntity<JobResponse> createJob(
+            @Valid @RequestBody JobRequest request) {
 
-	// Get all jobs
-	@GetMapping
-	public ResponseEntity<List<Job>> getAllJobs() {
-		return ResponseEntity.ok(jobService.getAllJobs());
-	}
+        Job job = new Job();
+        job.setTitle(request.getTitle());
+        job.setCompany(request.getCompany());
+        job.setLocation(request.getLocation());
+        job.setDescription(request.getDescription());
 
-	// Get job By id
-	@GetMapping("/{id}")
-	public ResponseEntity<Job> getJobById(@PathVariable Long id) {
-		return ResponseEntity.ok(jobService.getJobById(id));
-	}
-	
-	
-	@PutMapping("/{id}")
-	public ResponseEntity<Job> updateJob(@PathVariable Long id, @RequestBody Job job) {
-		return ResponseEntity.ok(jobService.updateJob(id, job));
-		
-	}
-	
-	//delete job
-	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteJob(@PathVariable Long id){
-		jobService.deleteJob(id);
-		return ResponseEntity.ok("Job Deleted successfully!!");
-		
-	}
+        Job savedJob = jobService.createJob(job);
+
+        JobResponse response = new JobResponse(
+                savedJob.getId(),
+                savedJob.getTitle(),
+                savedJob.getCompany(),
+                savedJob.getLocation(),
+                savedJob.getDescription()
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    //  GET ALL JOBS
+    @GetMapping
+    public ResponseEntity<List<Job>> getAllJobs() {
+        return ResponseEntity.ok(jobService.getAllJobs());
+    }
+
+    //  GET JOB BY ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Job> getJobById(@PathVariable Long id) {
+        return ResponseEntity.ok(jobService.getJobById(id));
+    }
+
+    // UPDATE JOB
+    @PutMapping("/{id}")
+    public ResponseEntity<Job> updateJob(
+            @PathVariable Long id,
+            @RequestBody Job job) {
+
+        return ResponseEntity.ok(jobService.updateJob(id, job));
+    }
+
+    //  DELETE JOB
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteJob(@PathVariable Long id) {
+        jobService.deleteJob(id);
+        return ResponseEntity.ok("Job deleted successfully");
+    }
 }

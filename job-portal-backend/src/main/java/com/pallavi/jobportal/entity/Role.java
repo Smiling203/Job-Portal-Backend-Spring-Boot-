@@ -4,5 +4,5 @@ public enum Role {
 
 	ADMIN,
 	RECRUITER,
-	JOB_SEEKER
+	JOB_SEEKER, USER
 }
