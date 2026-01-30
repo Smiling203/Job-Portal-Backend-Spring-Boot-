@@ -23,7 +23,7 @@ A backend REST API for a Job Portal system developed using **Spring Boot**. The 
 * Maven
 * Swagger / OpenAPI
 
-## 🗂️ Package Overview
+##  Package Overview
 ```
 com.pallavi.jobportal
 │
@@ -72,7 +72,7 @@ Implemented using `@ControllerAdvice` for centralized handling:
 All errors are returned in a consistent JSON format.
 
 
-## 📘 Swagger API Documentation
+##  Swagger API Documentation
 
 Swagger UI is enabled for easy API testing:
 
@@ -83,7 +83,7 @@ http://localhost:8080/swagger-ui/index.html
 JWT token can be passed using the **Authorize** button.
 
 
-## ▶️ Running the Application
+##  Running the Application
 
 1. Clone the repository
 2. Configure database details in `application.properties`
